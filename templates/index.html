@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AFRIK MOGO ASM</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<header class="barra-carrito">
+    <a href="{{ url_for('carrito') }}">🛒 Ver carrito</a>
+</header>
+
+<header>
+    <h1>AFRIK MOGO ASM</h1>
+    <p>Ropa africana con estilo y calidad</p>
+</header>
+
+<main>
+    <h2>Nuestros productos</h2>
+
+    <section class="productos">
+
+        {% for producto in productos %}
+
+        <article class="producto">
+
+            <img
+                src="{{ url_for('static', filename='images/' + producto.imagen) }}"
+                alt="{{ producto.nombre }}"
+            >
+
+            <h3>{{ producto.nombre }}</h3>
+
+            <p class="precio">{{ producto.precio }} €</p>
+
+            <p>Talla: {{ producto.talla }}</p>
+
+            {% if producto.stock > 0 %}
+
+                <p>Quedan {{ producto.stock }} unidad(es)</p>
+
+                <a href="{{ url_for('agregar', nombre=producto.nombre) }}">
+                    <button>Comprar</button>
+                </a>
+
+            {% else %}
+
+                <p>❌ Agotado</p>
+
+            {% endif %}
+
+        </article>
+
+        {% endfor %}
+
+    </section>
+</main>
+
+</body>
+</html>

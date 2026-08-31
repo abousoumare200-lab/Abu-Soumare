@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pedidos - AFRIK MOGO</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<header>
+    <h1>AFRIK MOGO</h1>
+    <p>Pedidos recibidos</p>
+</header>
+
+<div class="contenedor">
+
+    <h2>📦 Lista de pedidos</h2>
+
+    {% if pedidos %}
+
+        {% for item in pedidos %}
+
+        <article class="producto">
+
+            <h2>Pedido #{{ item.pedido.id }}</h2>
+
+            <p>📅 Fecha: <strong>{{ item.pedido.fecha }}</strong></p>
+
+            <hr>
+
+            <h3>Datos del cliente</h3>
+
+            <p>👤 Nombre: {{ item.pedido.nombre }}</p>
+            <p>📞 Teléfono: {{ item.pedido.telefono }}</p>
+            <p>📍 Dirección: {{ item.pedido.direccion }}</p>
+            <p>🏙️ Ciudad: {{ item.pedido.ciudad }}</p>
+
+            <hr>
+
+            <h3>🛍️ Productos</h3>
+
+            {% for producto in item.productos %}
+            <p>
+                {{ producto.nombre }} —
+                {{ producto.cantidad }} x {{ producto.precio }} € =
+                <strong>{{ producto.subtotal }} €</strong>
+            </p>
+            {% endfor %}
+
+            <hr>
+
+            <h3>💶 Total: {{ item.pedido.total }} €</h3>
+
+        </article>
+
+        <br>
+
+        {% endfor %}
+
+    {% else %}
+
+        <h2>No hay pedidos todavía.</h2>
+
+    {% endif %}
+
+    <br>
+
+    <a href="{{ url_for('inicio') }}">
+        <button>Volver a la tienda</button>
+    </a>
+
+</div>
+
+</body>
+</html>

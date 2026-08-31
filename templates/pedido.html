@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AFRIK MOGO - Pedido</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<header>
+    <h1>AFRIK MOGO</h1>
+    <p>Finalizar pedido</p>
+</header>
+
+<div class="contenedor">
+
+    {% if confirmado %}
+
+        <h2>✅ ¡Pedido confirmado!</h2>
+        <p>Gracias, <strong>{{ nombre_cliente }}</strong>.</p>
+        <p>Hemos recibido tu pedido correctamente.</p>
+        <p>Número de pedido: <strong>#{{ numero_pedido }}</strong></p>
+        <p>Total del pedido: <strong>{{ total }} €</strong></p>
+        <br>
+        <a href="{{ url_for('inicio') }}">
+            <button>Volver a la tienda</button>
+        </a>
+
+    {% elif productos %}
+
+        <h2>Tu pedido</h2>
+
+        {% for producto in productos %}
+        <div class="producto">
+            <img
+                src="{{ url_for('static', filename='images/' + producto.imagen) }}"
+                width="150"
+            >
+            <h3>{{ producto.nombre }}</h3>
+            <p>Precio: {{ producto.precio }} €</p>
+            <p>Cantidad: {{ producto.cantidad }}</p>
+            <p class="precio">Subtotal: {{ producto.subtotal }} €</p>
+        </div>
+        {% endfor %}
+
+        <h2>Total: {{ total }} €</h2>
+
+        <h2>Datos para el pedido</h2>
+
+        {% if error %}
+            <p>❌ {{ error }}</p>
+        {% endif %}
+
+        <form method="POST" action="{{ url_for('pedido') }}">
+
+            <p>
+                <label for="nombre">Nombre:</label>
+                <br>
+                <input type="text" id="nombre" name="nombre" required>
+            </p>
+
+            <p>
+                <label for="telefono">Teléfono:</label>
+                <br>
+                <input type="text" id="telefono" name="telefono" required>
+            </p>
+
+            <p>
+                <label for="direccion">Dirección:</label>
+                <br>
+                <input type="text" id="direccion" name="direccion" required>
+            </p>
+
+            <p>
+                <label for="ciudad">Ciudad:</label>
+                <br>
+                <input type="text" id="ciudad" name="ciudad" required>
+            </p>
+
+            <button type="submit">✅ Confirmar pedido</button>
+
+        </form>
+
+    {% else %}
+
+        <h2>Tu carrito está vacío</h2>
+
+        <a href="{{ url_for('inicio') }}">
+            <button>Volver a la tienda</button>
+        </a>
+
+    {% endif %}
+
+</div>
+
+</body>
+</html>

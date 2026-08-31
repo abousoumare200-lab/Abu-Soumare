@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Carrito - AFRIK MOGO ASM</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+    <h1>🛒 Carrito de compra</h1>
+
+    {% if productos %}
+
+        {% for producto in productos %}
+
+        <article class="producto">
+
+            <img
+                src="{{ url_for('static', filename='images/' + producto.imagen) }}"
+                width="250"
+            >
+
+            <h2>
+                {{ producto.nombre }}
+            </h2>
+
+            <p>
+                Precio: {{ producto.precio }} €
+            </p>
+
+            <h3>
+                Cantidad
+            </h3>
+
+            <a href="{{ url_for('restar', nombre=producto.nombre) }}">
+
+                <button>
+                    −
+                </button>
+
+            </a>
+
+            <strong>
+                {{ producto.cantidad }}
+            </strong>
+
+            <a href="{{ url_for('sumar', nombre=producto.nombre) }}">
+
+                <button>
+                    +
+                </button>
+
+            </a>
+
+            <p>
+
+                Subtotal:
+
+                <strong>
+                    {{ producto.subtotal }} €
+                </strong>
+
+            </p>
+
+            <a href="{{ url_for('eliminar', nombre=producto.nombre) }}">
+
+                <button>
+                    🗑️ Eliminar
+                </button>
+
+            </a>
+
+        </article>
+
+        <hr>
+
+        {% endfor %}
+
+        <h2>
+            Total: {{ total }} €
+        </h2>
+
+        <!-- CONTINUAR CON EL PEDIDO -->
+
+        <a href="{{ url_for('pedido') }}">
+
+            <button>
+                Continuar con el pedido
+            </button>
+
+        </a>
+
+        <br>
+        <br>
+
+        <!-- VACIAR CARRITO -->
+
+        <a href="{{ url_for('vaciar') }}">
+
+            <button>
+                Vaciar carrito
+            </button>
+
+        </a>
+
+        <br>
+        <br>
+
+        <!-- SEGUIR COMPRANDO -->
+
+        <a href="{{ url_for('inicio') }}">
+
+            <button>
+                Seguir comprando
+            </button>
+
+        </a>
+
+    {% else %}
+
+        <h2>
+            Tu carrito está vacío
+        </h2>
+
+        <a href="{{ url_for('inicio') }}">
+
+            <button>
+                Volver a la tienda
+            </button>
+
+        </a>
+
+    {% endif %}
+
+</body>
+
+</html>
