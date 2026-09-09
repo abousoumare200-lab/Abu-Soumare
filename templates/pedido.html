@@ -79,8 +79,58 @@
                 <input type="text" id="ciudad" name="ciudad" required>
             </p>
 
-            <button type="submit">✅ Confirmar pedido</button>
+<div id="paypal-button-container"></div>
 
+<script src="https://www.paypal.com/sdk/js?client-id={{ paypal_client_id }}&currency=EUR"></script>
+
+<script>
+paypal.Buttons({
+    createOrder: async function() {
+       const respuesta = await fetch("/api/paypal/create-order", {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+        nombre: document.getElementById("nombre").value,
+        telefono: document.getElementById("telefono").value,
+        direccion: document.getElementById("direccion").value,
+        ciudad: document.getElementById("ciudad").value
+    })
+});
+
+        const datos = await respuesta.json();
+
+        if (datos.error) {
+            throw new Error(datos.error);
+        }
+
+        return datos.id;
+    },
+
+    onApprove: async function(data) {
+        const respuesta = await fetch(
+            "/api/paypal/capture-order/" + data.orderID,
+            {
+                method: "POST"
+            }
+        );
+
+        const resultado = await respuesta.json();
+
+        if (resultado.error) {
+            alert("Error al procesar el pago.");
+            return;
+        }
+
+        window.location.href = "/pedido/confirmado/" + resultado.pedido_id;
+},
+onError: function(error) {
+        console.error(error);
+        alert("Ha ocurrido un error con PayPal.");
+    }
+}).render("#paypal-button-container");
+</script>
         </form>
 
     {% else %}

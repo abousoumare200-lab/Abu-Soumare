@@ -1,11 +1,36 @@
-from flask import Flask, render_template, redirect, url_for, session, request
+﻿from flask import Flask, render_template, redirect, url_for, session, request
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+PAYPAL_CLIENT_ID = os.getenv("PAYPAL_CLIENT_ID")
+PAYPAL_CLIENT_SECRET = os.getenv("PAYPAL_CLIENT_SECRET")
+
+from paypalserversdk.configuration import Environment
+from paypalserversdk.http.auth.o_auth_2 import ClientCredentialsAuthCredentials
+from paypalserversdk.paypal_serversdk_client import PaypalServersdkClient
+
+from paypalserversdk.models.order_request import OrderRequest
+from paypalserversdk.models.checkout_payment_intent import CheckoutPaymentIntent
+from paypalserversdk.models.purchase_unit_request import PurchaseUnitRequest
+from paypalserversdk.models.amount_with_breakdown import AmountWithBreakdown
+
+paypal_client = PaypalServersdkClient(
+    client_credentials_auth_credentials=ClientCredentialsAuthCredentials(
+        o_auth_client_id=PAYPAL_CLIENT_ID,
+        o_auth_client_secret=PAYPAL_CLIENT_SECRET
+    ),
+    environment=Environment.SANDBOX
+)
 import sqlite3
 from datetime import datetime
-
 app = Flask(__name__)
 app.secret_key = "afrik_mogo_as_mi_clave"
 
+@app.context_processor
+def datos_paypal():
+    return {"paypal_client_id": PAYPAL_CLIENT_ID}
 # ============================================================
 # BASE DE DATOS
 # ============================================================
@@ -59,9 +84,9 @@ def crear_base_datos():
     if stock_existente == 0:
 
         stock_inicial = {
-            "Traje Agbada Bazin Riche Púrpura Real": 2,
+            "Traje Agbada Bazin Riche P├║rpura Real": 2,
             "Conjunto Bazin Riche Azul Cobalto": 1,
-            "Agbada Imperial Algodón Blanco Ceremonial": 1,
+            "Agbada Imperial Algod├│n Blanco Ceremonial": 1,
             "Set Elegante 3 Piezas Gris Plata": 1,
             "Traje Agbada Bazin Riche Verde Oscuro": 2,
             "Set 3PCS Dashiki Agbada Verde Turquesa": 1,
@@ -94,9 +119,9 @@ def obtener_stock_dict():
 # ============================================================
 
 PRECIOS = {
-    "1786308011240": {"nombre": "Traje Agbada Bazin Riche Púrpura Real", "precio": 55, "talla": "L"},
+    "1786308011240": {"nombre": "Traje Agbada Bazin Riche P├║rpura Real", "precio": 55, "talla": "L"},
     "1786308097375": {"nombre": "Conjunto Bazin Riche Azul Cobalto", "precio": 55.25, "talla": "L"},
-    "1786308185528": {"nombre": "Agbada Imperial Algodón Blanco Ceremonial", "precio": 59, "talla": "L"},
+    "1786308185528": {"nombre": "Agbada Imperial Algod├│n Blanco Ceremonial", "precio": 59, "talla": "L"},
     "1786308218290": {"nombre": "Set Elegante 3 Piezas Gris Plata", "precio": 45.24, "talla": "L"},
     "1786308254107": {"nombre": "Traje Agbada Bazin Riche Verde Oscuro", "precio": 55, "talla": "L"},
     "1786308283918": {"nombre": "Set 3PCS Dashiki Agbada Verde Turquesa", "precio": 49, "talla": "L"},
@@ -123,7 +148,7 @@ def obtener_productos():
 
             clave = os.path.splitext(archivo)[0]
 
-            info = PRECIOS.get(clave, {"nombre": clave, "precio": 50, "talla": "Única"})
+            info = PRECIOS.get(clave, {"nombre": clave, "precio": 50, "talla": "├Ünica"})
 
             nombre = info["nombre"]
 
@@ -137,7 +162,7 @@ def obtener_productos():
                 "nombre": nombre,
                 "imagen": archivo,
                 "precio": info["precio"],
-                "talla": info.get("talla", "Única"),
+                "talla": info.get("talla", "├Ünica"),
                 "stock": stock_dict.get(nombre, 0)
             })
 
@@ -306,6 +331,10 @@ def pedido():
         return redirect(url_for("carrito"))
 
     productos = obtener_productos()
+    if not carrito:
+        return redirect(url_for("carrito"))
+
+    productos = obtener_productos()
 
     productos_carrito = []
 
@@ -405,44 +434,204 @@ def pedido():
 
 
 # ============================================================
-# VER PEDIDOS
+
+# PAYPAL - CREAR ORDEN
 # ============================================================
 
-@app.route("/pedidos")
-def pedidos():
+@app.route("/api/paypal/create-order", methods=["POST"])
+def crear_orden_paypal():
+    datos_cliente = request.get_json(silent=True) or {}
+
+    nombre_cliente = datos_cliente.get("nombre", "").strip()
+    telefono = datos_cliente.get("telefono", "").strip()
+    direccion = datos_cliente.get("direccion", "").strip()
+    ciudad = datos_cliente.get("ciudad", "").strip()
+
+    if not nombre_cliente or not telefono or not direccion or not ciudad:
+        return {"error": "Por favor, completa todos los datos del cliente."}, 400
+
+    session["datos_cliente_paypal"] = {
+        "nombre": nombre_cliente,
+        "telefono": telefono,
+        "direccion": direccion,
+        "ciudad": ciudad
+    }
+    carrito = session.get("carrito", {})
+
+    if not carrito:
+        return {"error": "El carrito está vacío"}, 400
+
+    productos = obtener_productos()
+    total = 0
+
+    for producto in productos:
+        nombre = producto["nombre"]
+
+        if nombre in carrito:
+            cantidad = carrito[nombre]
+            total += producto["precio"] * cantidad
+
+    total = f"{total:.2f}"
+
+    order_request = OrderRequest(
+        intent=CheckoutPaymentIntent.CAPTURE,
+        purchase_units=[
+            PurchaseUnitRequest(
+                amount=AmountWithBreakdown(
+                    currency_code="EUR",
+                    value=total
+                )
+            )
+        ]
+    )
+
+    try:
+        respuesta = paypal_client.orders.create_order({
+            "body": order_request
+        })
+                                                
+        return {"id": respuesta.body.id}
+
+    except Exception as e:
+        return {"error": str(e)}, 500
+
+
+# ============================================================
+# PAYPAL - CAPTURAR ORDEN
+# ============================================================
+
+@app.route("/api/paypal/capture-order/<order_id>", methods=["POST"])
+def capturar_orden_paypal(order_id):
+
+    try:
+        respuesta = paypal_client.orders.capture_order({
+            "id": order_id
+        })
+
+        estado = respuesta.body.status
+
+        if estado != "COMPLETED":
+            return {
+                "error": "El pago no se ha completado.",
+                "estado": estado
+            }, 400
+
+        datos_cliente = session.get("datos_cliente_paypal")
+
+        if not datos_cliente:
+            return {"error": "No se encontraron los datos del cliente."}, 400
+
+        carrito = session.get("carrito", {})
+
+        if not carrito:
+            return {"error": "El carrito está vacío."}, 400
+
+        productos = obtener_productos()
+        productos_carrito = []
+        total = 0
+
+        for producto in productos:
+
+            nombre = producto["nombre"]
+
+            if nombre in carrito:
+
+                cantidad = carrito[nombre]
+                subtotal = producto["precio"] * cantidad
+
+                productos_carrito.append({
+                    "nombre": nombre,
+                    "precio": producto["precio"],
+                    "cantidad": cantidad,
+                    "subtotal": subtotal
+                })
+
+                total += subtotal
+
+        total = round(total, 2)
+
+        fecha = datetime.now().strftime("%d/%m/%Y %H:%M")
+
+        conexion = conectar_db()
+
+        cursor = conexion.execute("""
+            INSERT INTO pedidos
+            (nombre, telefono, direccion, ciudad, total, fecha)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """, (
+            datos_cliente["nombre"],
+            datos_cliente["telefono"],
+            datos_cliente["direccion"],
+            datos_cliente["ciudad"],
+            total,
+            fecha
+        ))
+
+        pedido_id = cursor.lastrowid
+
+        for producto in productos_carrito:
+
+            conexion.execute("""
+                INSERT INTO productos_pedido
+                (pedido_id, nombre, precio, cantidad, subtotal)
+                VALUES (?, ?, ?, ?, ?)
+            """, (
+                pedido_id,
+                producto["nombre"],
+                producto["precio"],
+                producto["cantidad"],
+                producto["subtotal"]
+            ))
+
+            conexion.execute("""
+                UPDATE stock
+                SET cantidad = cantidad - ?
+                WHERE nombre = ?
+            """, (
+                producto["cantidad"],
+                producto["nombre"]
+            ))
+
+        conexion.commit()
+        conexion.close()
+
+        session["carrito"] = {}
+        session.pop("datos_cliente_paypal", None)
+
+        return {
+            "estado": "COMPLETED",
+            "pedido_id": pedido_id
+        }
+
+    except Exception as e:
+        return {"error": str(e)}, 500
+    # ============================================================
+# INICIAR SERVIDOR
+# ============================================================
+@app.route("/pedido/confirmado/<int:pedido_id>")
+def pedido_confirmado(pedido_id):
 
     conexion = conectar_db()
 
-    pedidos = conexion.execute("""
-        SELECT *
+    pedido = conexion.execute("""
+        SELECT nombre, total
         FROM pedidos
-        ORDER BY id DESC
-    """).fetchall()
-
-    pedidos_completos = []
-
-    for pedido in pedidos:
-
-        productos = conexion.execute("""
-            SELECT *
-            FROM productos_pedido
-            WHERE pedido_id = ?
-        """, (pedido["id"],)).fetchall()
-
-        pedidos_completos.append({
-            "pedido": pedido,
-            "productos": productos
-        })
+        WHERE id = ?
+    """, (pedido_id,)).fetchone()
 
     conexion.close()
 
-    return render_template("pedidos.html", pedidos=pedidos_completos)
+    if not pedido:
+        return redirect(url_for("carrito"))
 
-
-# ============================================================
-# INICIAR SERVIDOR
-# ============================================================
-
+    return render_template(
+        "pedido.html",
+        productos=[],
+        total=pedido["total"],
+        confirmado=True,
+        nombre_cliente=pedido["nombre"],
+        numero_pedido=pedido_id
+    )
 if __name__ == "__main__":
     crear_base_datos()
     app.run(debug=True)
