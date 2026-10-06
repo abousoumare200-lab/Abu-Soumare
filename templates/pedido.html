@@ -45,10 +45,9 @@
         </div>
         {% endfor %}
 
-        <h2>Total: {{ total }} €</h2>
+        <p>Envío: <strong>13,90 €</strong></p>
 
-        <h2>Datos para el pedido</h2>
-
+        <h2>Total: {{ "%.2f"|format(total + 13.90) }} €</h2>
         {% if error %}
             <p>❌ {{ error }}</p>
         {% endif %}
@@ -79,6 +78,11 @@
                 <input type="text" id="ciudad" name="ciudad" required>
             </p>
 
+            <p>
+    <label for="codigo_postal">Código postal:</label>
+    <br>
+    <input type="text" id="codigo_postal" name="codigo_postal" required>
+</p>
 <div id="paypal-button-container"></div>
 
 <script src="https://www.paypal.com/sdk/js?client-id={{ paypal_client_id }}&currency=EUR"></script>
@@ -91,13 +95,13 @@ paypal.Buttons({
     headers: {
         "Content-Type": "application/json"
     },
-    body: JSON.stringify({
-        nombre: document.getElementById("nombre").value,
-        telefono: document.getElementById("telefono").value,
-        direccion: document.getElementById("direccion").value,
-        ciudad: document.getElementById("ciudad").value
-    })
-});
+   body: JSON.stringify({
+    nombre: document.getElementById("nombre").value,
+    telefono: document.getElementById("telefono").value,
+    direccion: document.getElementById("direccion").value,
+    ciudad: document.getElementById("ciudad").value,
+    codigo_postal: document.getElementById("codigo_postal").value
+})
 
         const datos = await respuesta.json();
 

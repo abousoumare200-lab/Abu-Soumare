@@ -86,9 +86,24 @@
 
         {% endfor %}
 
-        <h2>
-            Total: {{ total }} €
-        </h2>
+       <details style="margin: 20px 0;">
+    <summary style="cursor: pointer; font-weight: bold; font-size: 18px;">
+        🚚 Ver gastos de envío
+    </summary>
+
+    <div style="margin-top: 15px;">
+        <p><strong>España Peninsular:</strong> 13,90 €</p>
+        <p><strong>Baleares:</strong> consultar según peso y destino</p>
+        <p><strong>Canarias:</strong> consultar según peso y destino</p>
+        <p><strong>Ceuta:</strong> consultar según peso y destino</p>
+        <p><strong>Melilla:</strong> consultar según peso y destino</p>
+
+        <p style="font-size: 14px;">
+            El precio del envío puede variar según el peso, las dimensiones
+            y la zona de destino.
+        </p>
+    </div>
+</details>
 
         <!-- CONTINUAR CON EL PEDIDO -->
 
