@@ -147,7 +147,9 @@ def obtener_productos():
             info = PRECIOS.get(clave, {"nombre": clave, "precio": 50, "talla": "├Ünica"})
 
             nombre = info["nombre"]
-
+            if stock_dict.get(nombre, 0) <= 0:
+             continue
+           
             # Evitar mostrar dos veces el mismo producto (2 fotos, mismo nombre)
             if nombre in vistos:
                 continue
