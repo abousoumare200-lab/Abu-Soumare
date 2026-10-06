@@ -115,14 +115,77 @@ def obtener_stock_dict():
 # ============================================================
 
 PRECIOS = {
-    "1786308011240": {"nombre": "Traje Agbada Bazin Riche P├║rpura Real", "precio": 55, "talla": "L"},
-    "1786308097375": {"nombre": "Conjunto Bazin Riche Azul Cobalto", "precio": 55.25, "talla": "L"},
-    "1786308185528": {"nombre": "Agbada Imperial Algod├│n Blanco Ceremonial", "precio": 59, "talla": "L"},
-    "1786308218290": {"nombre": "Set Elegante 3 Piezas Gris Plata", "precio": 45.24, "talla": "L"},
-    "1786308254107": {"nombre": "Traje Agbada Bazin Riche Verde Oscuro", "precio": 55, "talla": "L"},
-    "1786308283918": {"nombre": "Set 3PCS Dashiki Agbada Verde Turquesa", "precio": 49, "talla": "L"},
-    "1786308314540": {"nombre": "Atuendo Formal Bazin Dashiki Azul Cielo", "precio": 55, "talla": "L"},
-    "1786308155610": {"nombre": "Atuendo Formal Bazin Dashiki Azul Cielo", "precio": 55, "talla": "L"},
+    "1786308011240": {
+        "nombre": "Traje Agbada Bazin Riche Púrpura Real",
+        "precio": 55,
+        "talla": "L"
+    },
+
+    "1786308097375": {
+        "nombre": "Conjunto Bazin Riche Azul Cobalto",
+        "precio": 55.25,
+        "talla": "L"
+    },
+
+    "1786308097375_XL": {
+        "nombre": "Conjunto Bazin Riche Azul Cobalto - Talla XL",
+        "precio": 55.25,
+        "talla": "XL"
+    },
+
+    "1786308185528": {
+        "nombre": "Agbada Imperial Algodón Blanco Ceremonial",
+        "precio": 59,
+        "talla": "L"
+    },
+
+    "1786308218290": {
+        "nombre": "Set Elegante 3 Piezas Gris Plata",
+        "precio": 45.24,
+        "talla": "L"
+    },
+
+    "1786308254107": {
+        "nombre": "Traje Agbada Bazin Riche Verde Oscuro",
+        "precio": 55,
+        "talla": "L"
+    },
+
+    "1786308283918": {
+        "nombre": "Set 3PCS Dashiki Agbada Verde Turquesa",
+        "precio": 49,
+        "talla": "L"
+    },
+
+    "1786308283918_XL": {
+        "nombre": "Set 3PCS Dashiki Agbada Verde Turquesa - Talla XL",
+        "precio": 49,
+        "talla": "XL"
+    },
+
+    "1786308314540": {
+        "nombre": "Atuendo Formal Bazin Dashiki Azul Cielo",
+        "precio": 55,
+        "talla": "XL"
+    },
+
+    "1786308155610": {
+        "nombre": "Atuendo Formal Bazin Dashiki Azul Cielo",
+        "precio": 55,
+        "talla": "XL"
+    },
+
+    "IMG-20261006-WA0164": {
+        "nombre": "H & D New Style African Men Outfit Agbada Riche Cotton Clothing Men Agbada",
+        "precio": 56,
+        "talla": "2XL"
+    },
+
+    "IMG-20261006-WA0171": {
+        "nombre": "H&D African Traditional Attire Formal Bazin Riche Dashiki Outfits",
+        "precio": 52.90,
+        "talla": "L"
+    }
 }
 
 
