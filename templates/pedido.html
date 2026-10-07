@@ -102,8 +102,8 @@ paypal.Buttons({
     ciudad: document.getElementById("ciudad").value,
     codigo_postal: document.getElementById("codigo_postal").value
 })
-
-        const datos = await respuesta.json();
+});
+    const datos = await respuesta.json();
 
         if (datos.error) {
             throw new Error(datos.error);
