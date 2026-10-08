@@ -163,16 +163,10 @@ PRECIOS = {
         "talla": "XL"
     },
 
-    "1786308314540": {
-        "nombre": "Atuendo Formal Bazin Dashiki Azul Cielo",
-        "precio": 55,
-        "talla": "XL"
-    },
-
     "1786308155610": {
-        "nombre": "Atuendo Formal Bazin Dashiki Azul Cielo",
-        "precio": 55,
-        "talla": "XL"
+    "nombre": "Atuendo Formal Bazin Dashiki Azul Cielo",
+    "precio": 55,
+    "talla": "XL"
     },
 
     "IMG-20261006-WA0164": {
