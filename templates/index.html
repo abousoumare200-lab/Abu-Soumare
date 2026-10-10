@@ -39,26 +39,21 @@
 
             <p>Talla: {{ producto.talla }}</p>
 
-            {% if producto.stock > 0 %}
-
-                <p>Quedan {{ producto.stock }} unidad(es)</p>
-
-                <a href="{{ url_for('agregar', nombre=producto.nombre) }}">
-                    <button>Comprar</button>
-                </a>
-
-            {% else %}
-
-                <p>❌ Agotado</p>
-
-            {% endif %}
-
-        </article>
-
-        {% endfor %}
-
-    </section>
+{% if not producto.agotado %}
+    <p>Quedan {{ producto.stock }} unidad(es)</p>
+    <a href="{{ url_for('agregar', nombre=producto.nombre) }}">
+        <button>Comprar</button>
+    </a>
+{% else %}
+    <p>❌ AGOTADO</p>
+{% endif %}
+</article>
+{% endfor %}
+</section>
 </main>
+</body>
+</html>
+
 
 <a href="https://wa.me/34644854319?text=Hola%20AFRIK%20MOGO%20AS%2C%20estoy%20interesado%20en%20uno%20de%20sus%20productos."
    target="_blank"

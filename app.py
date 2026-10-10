@@ -183,46 +183,54 @@ PRECIOS = {
 }
 
 
+
+
 def obtener_productos():
-
     carpeta = os.path.join(app.static_folder, "images")
-
     extensiones = (".jpg", ".jpeg", ".png", ".webp", ".gif")
-
     stock_dict = obtener_stock_dict()
-
     vistos = set()
-
     productos = []
 
+    agotados_manuales = [
+        "Agbada Imperial Algodón Blanco Ceremonial",
+        "Set 3PCS Dashiki Agbada Verde Turquesa"
+    ]
+
     for archivo in os.listdir(carpeta):
+        if not archivo.lower().endswith(extensiones):
+            continue
 
-        if archivo.lower().endswith(extensiones):
+        clave = os.path.splitext(archivo)[0]
+        info = PRECIOS.get(
+            clave,
+            {"nombre": clave, "precio": 50, "talla": "Única"}
+        )
 
-            clave = os.path.splitext(archivo)[0]
+        nombre = info["nombre"]
+        agotado = (
+            stock_dict.get(nombre, 0) <= 0
+            or nombre in agotados_manuales
+        )
 
-            info = PRECIOS.get(clave, {"nombre": clave, "precio": 50, "talla": "├Ünica"})
+        if agotado and nombre not in agotados_manuales:
+            continue
 
-            nombre = info["nombre"]
-            if stock_dict.get(nombre, 0) <= 0:
-             continue
-           
-            # Evitar mostrar dos veces el mismo producto (2 fotos, mismo nombre)
-            if nombre in vistos:
-                continue
+        if nombre in vistos:
+            continue
 
-            vistos.add(nombre)
+        vistos.add(nombre)
 
-            productos.append({
-                "nombre": nombre,
-                "imagen": archivo,
-                "precio": info["precio"],
-                "talla": info.get("talla", "├Ünica"),
-                "stock": stock_dict.get(nombre, 0)
-            })
+        productos.append({
+            "nombre": nombre,
+            "imagen": archivo,
+            "precio": info["precio"],
+            "talla": info.get("talla", "Única"),
+            "stock": stock_dict.get(nombre, 0),
+            "agotado": agotado
+        })
 
     return productos
-
 
 # ============================================================
 # TIENDA
